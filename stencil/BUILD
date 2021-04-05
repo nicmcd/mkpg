@@ -12,6 +12,17 @@ cc_binary(
     visibility = ["//visibility:public"],
 )
 
+cc_binary(
+    name = "mkss_stencil",
+    srcs = ["mkss_stencil.cc"],
+    copts = ["-UNDEBUG"],
+    deps = [
+        "@libprim//:prim",
+        "@tclap//:tclap",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 genrule(
     name = "lint",
     srcs = glob([
@@ -22,7 +33,7 @@ genrule(
     outs = ["linted"],
     cmd = """
     python $(location @cpplint//:cpplint) \
-      --root=$$(pwd)/src \
+      --root=$$(pwd) \
       --headers=h,tcc \
       --extensions=cc,h,tcc \
       --quiet $(SRCS) > $@
@@ -44,7 +55,7 @@ genrule(
     outs = ["format_checked"],
     cmd = """
     cp $(location @clang_format//file) .clang-format
-    clang-format --style=file --dry-run --Werror src/main.cc
+    clang-format --style=file --dry-run --Werror $(SRCS)
     echo // $$(date) > $@
     """,
     tools = [

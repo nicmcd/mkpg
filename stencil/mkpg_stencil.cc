@@ -73,16 +73,12 @@ struct Cube {
   u32 xn_;
   u32 yn_;
   u32 zn_;
-  Cube(u32 _xn, u32 _yn, u32 _zn)
-      : xn_(_xn), yn_(_yn), zn_(_zn) {}
+  Cube(u32 _xn, u32 _yn, u32 _zn) : xn_(_xn), yn_(_yn), zn_(_zn) {}
   u32 id(u32 _x, u32 _y, u32 _z) const {
     assert(_x < xn_);
     assert(_y < yn_);
     assert(_z < zn_);
-    u32 i = (
-        ((zn_ * yn_) * _z) +
-        (yn_ * _y) +
-        (_x));
+    u32 i = (((zn_ * yn_) * _z) + (yn_ * _y) + (_x));
     assert(i < (zn_ * yn_ * xn_));
     return i;
   }
@@ -107,14 +103,14 @@ s32 main(s32 _argc, char** _argv) {
     TCLAP::CmdLine cmd(
         "Make ParaGraph representing a 27-Point Stencil Workloads", ' ', "1.0");
     TCLAP::UnlabeledValueArg<u32> xNodesArg(
-        "x_nodes", "Number of nodes in the virtual x dimension",
-        true, 0, "u32", cmd);
+        "x_nodes", "Number of nodes in the virtual x dimension", true, 0, "u32",
+        cmd);
     TCLAP::UnlabeledValueArg<u32> yNodesArg(
-        "y_nodes", "Number of nodes in the virtual y dimension",
-        true, 0, "u32", cmd);
+        "y_nodes", "Number of nodes in the virtual y dimension", true, 0, "u32",
+        cmd);
     TCLAP::UnlabeledValueArg<u32> zNodesArg(
-        "z_nodes", "Number of nodes in the virtual z dimension",
-        true, 0, "u32", cmd);
+        "z_nodes", "Number of nodes in the virtual z dimension", true, 0, "u32",
+        cmd);
     TCLAP::UnlabeledValueArg<u32> iterationsArg(
         "iterations", "Number of iterations through the stencil algorithm",
         true, 0, "u32", cmd);
@@ -122,32 +118,31 @@ s32 main(s32 _argc, char** _argv) {
         "loop_condition_seconds", "Amount of seconds each loop condition takes",
         true, 0, "f64", cmd);
     TCLAP::UnlabeledValueArg<f64> computeSecondsArg(
-        "compute_seconds", "Amount of seconds each compute step takes",
-        true, 0, "f64", cmd);
+        "compute_seconds", "Amount of seconds each compute step takes", true, 0,
+        "f64", cmd);
     TCLAP::UnlabeledValueArg<u32> faceMessageSizeArg(
-        "face_msg_size", "Message size of face communications",
-        true, 0, "u32", cmd);
+        "face_msg_size", "Message size of face communications", true, 0, "u32",
+        cmd);
     TCLAP::UnlabeledValueArg<u32> edgeMessageSizeArg(
-        "edge_msg_size", "Message size of corner communications",
-        true, 0, "u32", cmd);
+        "edge_msg_size", "Message size of corner communications", true, 0,
+        "u32", cmd);
     TCLAP::UnlabeledValueArg<u32> cornerMessageSizeArg(
-        "corner_msg_size", "Message size of corner communications",
-        true, 0, "u32", cmd);
+        "corner_msg_size", "Message size of corner communications", true, 0,
+        "u32", cmd);
     TCLAP::UnlabeledValueArg<u32> allreduceMessageSizeArg(
-        "allreduce_msg_size", "Message size of all-reduce operation",
-        true, 0, "u32", cmd);
+        "allreduce_msg_size", "Message size of all-reduce operation", true, 0,
+        "u32", cmd);
     TCLAP::UnlabeledValueArg<f64> reductionSecondsArg(
         "reduction_seconds", "Amount of seconds each reduction operation takes",
         true, 0, "f64", cmd);
-    TCLAP::ValueArg<std::string> nameArg(
-        "n", "name", "Name of the graph",
-        false, "27-Point Stencil", "string", cmd);
+    TCLAP::ValueArg<std::string> nameArg("n", "name", "Name of the graph",
+                                         false, "27-Point Stencil", "string",
+                                         cmd);
     TCLAP::UnlabeledValueArg<std::string> outputFileArg(
-        "output_file", "Output graph file",
-        true, "", "filename", cmd);
-    TCLAP::ValueArg<u32> verbosityArg(
-        "v", "verbosity", "Configures the verbosity level",
-        false, 0, "u32", cmd);
+        "output_file", "Output graph file", true, "", "filename", cmd);
+    TCLAP::ValueArg<u32> verbosityArg("v", "verbosity",
+                                      "Configures the verbosity level", false,
+                                      0, "u32", cmd);
     cmd.parse(_argc, _argv);
     xn = xNodesArg.getValue();
     yn = yNodesArg.getValue();
@@ -187,6 +182,7 @@ s32 main(s32 _argc, char** _argv) {
   assert(yn > 0);
   assert(zn > 0);
   assert(iterations > 0);
+  assert(loop_condition_seconds >= 0.0);
   assert(compute_seconds >= 0.0);
   assert(face_msg_size > 0);
   assert(edge_msg_size > 0);
@@ -208,9 +204,9 @@ s32 main(s32 _argc, char** _argv) {
   paragraph::Subroutine* main_subr = main_subr_uniq.get();
   graph->SetEntrySubroutine(std::move(main_subr_uniq));
 
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* while_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kWhile, "loop", main_subr, true));
+  CHECK_OK_AND_ASSIGN(paragraph::Instruction * while_inst,
+                      paragraph::Instruction::Create(paragraph::Opcode::kWhile,
+                                                     "loop", main_subr, true));
 
   std::unique_ptr<paragraph::Subroutine> loop_body_subr_uniq =
       std::make_unique<paragraph::Subroutine>("loop_body", graph.get());
@@ -222,18 +218,18 @@ s32 main(s32 _argc, char** _argv) {
   paragraph::Subroutine* loop_cond_subr = loop_cond_subr_uniq.get();
   while_inst->AppendInnerSubroutine(std::move(loop_cond_subr_uniq));
 
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* compute_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kDelay, "compute",
-                          loop_body_subr));
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* exchange_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kCall, "exchange",
-                          loop_body_subr));
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* allreduce_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kAllReduce, "allreduce",
-                          loop_body_subr, true));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * compute_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kDelay, "compute",
+                                     loop_body_subr));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * exchange_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kCall, "exchange",
+                                     loop_body_subr));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * allreduce_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kAllReduce, "allreduce",
+                                     loop_body_subr, true));
 
   exchange_inst->AddOperand(compute_inst);
   allreduce_inst->AddOperand(exchange_inst);
@@ -247,95 +243,121 @@ s32 main(s32 _argc, char** _argv) {
   paragraph::Instruction* tmp;
 
   // Face instructions
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_xn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_xn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_xp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_xp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_yn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_yn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_yp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_yp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_zn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_zn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "face_zp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "face_zp", exchange_subr));
   halo_insts.push_back(tmp);
 
   // Edge instructions
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_xnyn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_xnyn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_xnyp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_xnyp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_xpyn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_xpyn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_xpyp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_xpyp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_ynzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_ynzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_ynzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_ynzp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_ypzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_ypzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_ypzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_ypzp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_znxn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_znxn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_znxp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_znxp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_zpxn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_zpxn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "edge_zpxp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "edge_zpxp", exchange_subr));
   halo_insts.push_back(tmp);
 
   // Corner instructions
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xnynzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xnynzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xnynzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xnynzp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xnypzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xnypzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xnypzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xnypzp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xpynzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xpynzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xpynzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xpynzp", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xpypzn", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xpypzn", exchange_subr));
   halo_insts.push_back(tmp);
-  CHECK_OK_AND_ASSIGN(tmp, paragraph::Instruction::Create(
-      paragraph::Opcode::kSendRecv, "corner_xpypzp", exchange_subr));
+  CHECK_OK_AND_ASSIGN(
+      tmp, paragraph::Instruction::Create(paragraph::Opcode::kSendRecv,
+                                          "corner_xpypzp", exchange_subr));
   halo_insts.push_back(tmp);
 
   assert(halo_insts.size() == HALO_INSTS);
 
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* exchange_root_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kNull, "root", exchange_subr,
-                          true));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * exchange_root_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kNull, "root",
+                                     exchange_subr, true));
   for (paragraph::Instruction* halo_inst : halo_insts) {
     exchange_root_inst->AddOperand(halo_inst);
   }
@@ -345,15 +367,15 @@ s32 main(s32 _argc, char** _argv) {
   paragraph::Subroutine* reduction_subr = reduction_subr_uniq.get();
   allreduce_inst->AppendInnerSubroutine(std::move(reduction_subr_uniq));
 
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* reduction_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kDelay, "reduction",
-                          reduction_subr, true));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * reduction_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kDelay, "reduction",
+                                     reduction_subr, true));
 
-  CHECK_OK_AND_ASSIGN(paragraph::Instruction* loop_cond_inst,
-                      paragraph::Instruction::Create(
-                          paragraph::Opcode::kDelay, "loop_condition",
-                          loop_cond_subr, true));
+  CHECK_OK_AND_ASSIGN(
+      paragraph::Instruction * loop_cond_inst,
+      paragraph::Instruction::Create(paragraph::Opcode::kDelay,
+                                     "loop_condition", loop_cond_subr, true));
 
   CHECK_OK(graph->ValidateComposite());
 
@@ -436,7 +458,7 @@ s32 main(s32 _argc, char** _argv) {
           }
           halo_insts.at(EDGE_XPYN)->AppendCommunicationGroup({you, me, you});
         }
-        if (x < xn -1 && y < yn - 1) {
+        if (x < xn - 1 && y < yn - 1) {
           u32 you = cube.id(x + 1, y + 1, z);
           if (verbosity > 1) {
             printf("  Edge +x,+y -> [%u,%u,%u] -> %u\n", x + 1, y + 1, z, you);
@@ -464,7 +486,7 @@ s32 main(s32 _argc, char** _argv) {
           }
           halo_insts.at(EDGE_YPZN)->AppendCommunicationGroup({you, me, you});
         }
-        if (y < yn -1 && z < zn - 1) {
+        if (y < yn - 1 && z < zn - 1) {
           u32 you = cube.id(x, y + 1, z + 1);
           if (verbosity > 1) {
             printf("  Edge +y,+z -> [%u,%u,%u] -> %u\n", x, y + 1, z + 1, you);
@@ -492,7 +514,7 @@ s32 main(s32 _argc, char** _argv) {
           }
           halo_insts.at(EDGE_ZPXN)->AppendCommunicationGroup({you, me, you});
         }
-        if (z < zn -1 && x < xn - 1) {
+        if (z < zn - 1 && x < xn - 1) {
           u32 you = cube.id(x + 1, y, z + 1);
           if (verbosity > 1) {
             printf("  Edge +z,+x -> [%u,%u,%u] -> %u\n", x + 1, y, z + 1, you);
@@ -504,66 +526,74 @@ s32 main(s32 _argc, char** _argv) {
         if (x > 0 && y > 0 && z > 0) {
           u32 you = cube.id(x - 1, y - 1, z - 1);
           if (verbosity > 1) {
-            printf("  Corner -x,-y,-z -> [%u,%u,%u] -> %u\n",
-                   x - 1, y - 1, z - 1, you);
+            printf("  Corner -x,-y,-z -> [%u,%u,%u] -> %u\n", x - 1, y - 1,
+                   z - 1, you);
           }
-          halo_insts.at(CORNER_XNYNZN)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XNYNZN)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x > 0 && y > 0 && z < zn - 1) {
           u32 you = cube.id(x - 1, y - 1, z + 1);
           if (verbosity > 1) {
-            printf("  Corner -x,-y,+z -> [%u,%u,%u] -> %u\n",
-                   x - 1, y - 1, z + 1, you);
+            printf("  Corner -x,-y,+z -> [%u,%u,%u] -> %u\n", x - 1, y - 1,
+                   z + 1, you);
           }
-          halo_insts.at(CORNER_XNYNZP)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XNYNZP)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x > 0 && y < yn - 1 && z > 0) {
           u32 you = cube.id(x - 1, y + 1, z - 1);
           if (verbosity > 1) {
-            printf("  Corner -x,+y,-z -> [%u,%u,%u] -> %u\n",
-                   x - 1, y + 1, z - 1, you);
+            printf("  Corner -x,+y,-z -> [%u,%u,%u] -> %u\n", x - 1, y + 1,
+                   z - 1, you);
           }
-          halo_insts.at(CORNER_XNYPZN)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XNYPZN)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x > 0 && y < yn - 1 && z < zn - 1) {
           u32 you = cube.id(x - 1, y + 1, z + 1);
           if (verbosity > 1) {
-            printf("  Corner -x,+y,+z -> [%u,%u,%u] -> %u\n",
-                   x - 1, y + 1, z + 1, you);
+            printf("  Corner -x,+y,+z -> [%u,%u,%u] -> %u\n", x - 1, y + 1,
+                   z + 1, you);
           }
-          halo_insts.at(CORNER_XNYPZP)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XNYPZP)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x < xn - 1 && y > 0 && z > 0) {
           u32 you = cube.id(x + 1, y - 1, z - 1);
           if (verbosity > 1) {
-            printf("  Corner -x,-y,-z -> [%u,%u,%u] -> %u\n",
-                   x + 1, y - 1, z - 1, you);
+            printf("  Corner -x,-y,-z -> [%u,%u,%u] -> %u\n", x + 1, y - 1,
+                   z - 1, you);
           }
-          halo_insts.at(CORNER_XPYNZN)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XPYNZN)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x < xn - 1 && y > 0 && z < zn - 1) {
           u32 you = cube.id(x + 1, y - 1, z + 1);
           if (verbosity > 1) {
-            printf("  Corner -x,-y,+z -> [%u,%u,%u] -> %u\n",
-                   x + 1, y - 1, z + 1, you);
+            printf("  Corner -x,-y,+z -> [%u,%u,%u] -> %u\n", x + 1, y - 1,
+                   z + 1, you);
           }
-          halo_insts.at(CORNER_XPYNZP)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XPYNZP)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x < xn - 1 && y < yn - 1 && z > 0) {
           u32 you = cube.id(x + 1, y + 1, z - 1);
           if (verbosity > 1) {
-            printf("  Corner -x,+y,-z -> [%u,%u,%u] -> %u\n",
-                   x + 1, y + 1, z - 1, you);
+            printf("  Corner -x,+y,-z -> [%u,%u,%u] -> %u\n", x + 1, y + 1,
+                   z - 1, you);
           }
-          halo_insts.at(CORNER_XPYPZN)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XPYPZN)
+              ->AppendCommunicationGroup({you, me, you});
         }
         if (x < xn - 1 && y < yn - 1 && z < zn - 1) {
           u32 you = cube.id(x + 1, y + 1, z + 1);
           if (verbosity > 1) {
-            printf("  Corner -x,+y,+z -> [%u,%u,%u] -> %u\n",
-                   x + 1, y + 1, z + 1, you);
+            printf("  Corner -x,+y,+z -> [%u,%u,%u] -> %u\n", x + 1, y + 1,
+                   z + 1, you);
           }
-          halo_insts.at(CORNER_XPYPZP)->AppendCommunicationGroup({you, me, you});
+          halo_insts.at(CORNER_XPYPZP)
+              ->AppendCommunicationGroup({you, me, you});
         }
       }
     }
@@ -624,9 +654,9 @@ s32 main(s32 _argc, char** _argv) {
            halo_insts.at(CORNER_XPYPZP)->GetCommunicationGroupVector().size());
   }
 
-  // Configures the communication groups of the exchange operation
+  // Configures the communication group of the all-reduce operation
   if (verbosity > 0) {
-    printf("Configuring communication groups for allreduce\n");
+    printf("Configuring communication group for allreduce\n");
   }
   paragraph::CommunicationGroup allreduce_comm_group;
   u32 nodes = xn * yn * zn;
@@ -688,4 +718,4 @@ s32 main(s32 _argc, char** _argv) {
   CHECK_OK(graph->WriteToFile(output_file));
 
   return 0;
-}
+}  // NOLINT(readability/fn_size)

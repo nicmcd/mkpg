@@ -93,7 +93,7 @@ http_archive(
     strip_prefix = "abseil-abseil-cpp-" + hash,
 )
 
-hash = "6b56ef3"
+hash = "ef2951d"
 http_archive(
   name = "libprim",
   urls = ["https://github.com/nicmcd/libprim/tarball/" + hash],
@@ -101,7 +101,7 @@ http_archive(
   strip_prefix = "nicmcd-libprim-" + hash,
 )
 
-hash = "be21d81"
+hash = "878ff36"
 http_archive(
   name = "libcolhash",
   urls = ["https://github.com/nicmcd/libcolhash/tarball/" + hash],
@@ -109,7 +109,7 @@ http_archive(
   strip_prefix = "nicmcd-libcolhash-" + hash,
 )
 
-hash = "46865ff"
+hash = "5f52dc7"
 http_archive(
   name = "libfactory",
   urls = ["https://github.com/nicmcd/libfactory/tarball/" + hash],
@@ -117,7 +117,7 @@ http_archive(
   strip_prefix = "nicmcd-libfactory-" + hash,
 )
 
-hash = "55db323"
+hash = "868faad"
 http_archive(
   name = "librnd",
   urls = ["https://github.com/nicmcd/librnd/tarball/" + hash],
@@ -125,7 +125,7 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "8a7b8e7"
+hash = "4f7c96e"
 http_archive(
   name = "libmut",
   urls = ["https://github.com/nicmcd/libmut/tarball/" + hash],
@@ -133,7 +133,7 @@ http_archive(
   strip_prefix = "nicmcd-libmut-" + hash,
 )
 
-hash = "8127531"
+hash = "1e9c5b7"
 http_archive(
   name = "libbits",
   urls = ["https://github.com/nicmcd/libbits/tarball/" + hash],
@@ -141,7 +141,7 @@ http_archive(
   strip_prefix = "nicmcd-libbits-" + hash,
 )
 
-hash = "ad29c47"
+hash = "bf6c19f"
 http_archive(
   name = "libstrop",
   urls = ["https://github.com/nicmcd/libstrop/tarball/" + hash],
@@ -149,7 +149,7 @@ http_archive(
   strip_prefix = "nicmcd-libstrop-" + hash,
 )
 
-hash = "528a0a3"
+hash = "9709475"
 http_archive(
   name = "libfio",
   urls = ["https://github.com/nicmcd/libfio/tarball/" + hash],
@@ -157,7 +157,7 @@ http_archive(
   strip_prefix = "nicmcd-libfio-" + hash,
 )
 
-hash = "5027e1c"
+hash = "1fbb6bc"
 http_archive(
   name = "libsettings",
   urls = ["https://github.com/nicmcd/libsettings/tarball/" + hash],
