@@ -64,12 +64,12 @@ http_archive(
     build_file = "@nlohmann_json_build//file:downloaded",
 )
 
-hash = "3d2a6fa"
+hash = "0a1151f"
 http_archive(
   name = "com_google_paragraph",
-    urls = ["https://github.com/google/paragraph/tarball/" + hash],
+    urls = ["https://github.com/paragraph-sim/paragraph-core/tarball/" + hash],
     type = "tar.gz",
-    strip_prefix = "google-paragraph-" + hash,
+    strip_prefix = "paragraph-sim-paragraph-core-" + hash,
 )
 
 hash = "97d8af4"
